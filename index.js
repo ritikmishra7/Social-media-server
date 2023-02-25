@@ -4,13 +4,22 @@ const dotenv = require('dotenv');
 const dbConnect = require('./dbConnect');
 const mainRouter = require('./routers/mainRouter');
 const morgan = require('morgan');
-const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+
+
 dotenv.config('./.env');
 
 
 //middlewares
 app.use(express.json());
 app.use(morgan('common'));
+app.use(cookieParser());
+
+app.use(cors({
+    origin:'http://localhost:3000', 
+    credentials:true,         
+}));
 
 
 app.use('/', mainRouter);

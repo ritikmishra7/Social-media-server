@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 module.exports = async () => {
-    const uri = 'mongodb+srv://ritikmishra7:fEReXDDNsbJZm2HD@cluster0.0hfgegi.mongodb.net/?retryWrites=true&w=majority';
+    const uri = process.env.MONGODB_URI;
     try {
         mongoose.set("strictQuery", false);
         const connect = await mongoose.connect(uri, {
