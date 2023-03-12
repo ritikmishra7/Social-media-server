@@ -11,6 +11,9 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    bio: {
+        type: String,
+    },
     username: {
         type: String,
         unique: true,
@@ -18,7 +21,8 @@ const userSchema = mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        select: false
     },
     avatar: {
         publicId: String,
@@ -27,17 +31,19 @@ const userSchema = mongoose.Schema({
     followers: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
-    }],  
+    }],
     followings: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
     }],
     posts: [
         {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'post'
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'post'
         }
     ]
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model("user", userSchema);
