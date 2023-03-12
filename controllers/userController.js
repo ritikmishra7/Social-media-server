@@ -187,7 +187,14 @@ const updateUserProfileController = async (req, res) => {
     try {
 
         const { name, username, email, bio, avatar } = req.body;
-        const user = await User.findById(req._id).populate('posts').populate('followers').populate('followings');
+        const user = await User.findById(req._id).populate('followers').populate('followings').populate(
+            {
+                path: 'posts',
+                populate: {
+                    path: 'owner',
+                }
+            }
+        );
 
         if (name && user?.name !== name) {
             user.name = name;
