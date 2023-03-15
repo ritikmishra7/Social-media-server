@@ -29,8 +29,8 @@ const postSchema = mongoose.Schema({
             },
             commentOwner: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'user'
-            }
+                ref: 'user',
+            },
         }
     ]
 

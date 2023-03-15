@@ -63,7 +63,7 @@ const getPostsOfFollowingController = async (req, res) => {
             'owner': {
                 '$in': currUser.followings
             }
-        }).populate('owner');
+        }).populate('owner').populate({ path: 'comment.commentOwner' });
         const posts = fullPosts.map((post) => mapPostOutput(post, req._id)).reverse();
         currUser.posts = posts;
         const followingsId = currUser.followings.map((user) => { return user._id });
@@ -171,8 +171,9 @@ const getMyProfileController = async (req, res) => {
             {
                 path: 'posts',
                 populate: {
+                    path: 'comment.commentOwner',
                     path: 'owner',
-                }
+                },
             }
         );
         const fullPosts = user.posts;
@@ -192,7 +193,10 @@ const updateUserProfileController = async (req, res) => {
                 path: 'posts',
                 populate: {
                     path: 'owner',
-                }
+                },
+                populate: {
+                    path: 'comment.commentOwner'
+                },
             }
         );
 
@@ -250,19 +254,48 @@ const getUserDetailsController = async (req, res) => {
             {
                 path: 'posts',
                 populate: {
-                    path: 'owner',
-                }
+                    path: 'comment.commentOwner',
+                    path: 'owner'
+                },
             }
         )
 
         const fullPosts = user.posts;
         const posts = fullPosts.map((post) => mapPostOutput(post, req._id)).reverse();
-        const isFollowing = user.followers.some((follower) => follower._id.toString() === req._id);
+        let isFollowing = false;
+        for (let i = 0; i < user.followers.length; i++) {
+            console.log(user.followers[i]._id.toString(), req._id);
+            if (user.followers[i]._id.toString() === req._id) {
+                isFollowing = true;
+                break;
+            }
+        }
         return res.send(success(200, { ...user._doc, posts, isFollowing }));
     } catch (e) {
         return res.send(error(500, e.message));
     }
 }
+
+const searchUserController = async (req, res) => {
+    try {
+        const { searchQuery } = req.body;
+
+        if (!searchQuery)
+            return res.send(error(400, "Search query is required"));
+
+        const users = await User.find({ name: { $regex: searchQuery, $options: 'i' } });
+
+        const withOutUser = users.filter((user) => user._id.toString() !== req._id);
+        const mappedUsers = withOutUser.map((user) => {
+            const isFollowing = user.followers.some((follower) => follower._id.toString() === req._id);
+            return { ...user._doc, isFollowing };
+        })
+        return res.send(success(200, { users: mappedUsers }));
+    } catch (e) {
+        return res.send(error(500, e.message));
+    }
+}
+
 
 module.exports = {
     followUnfollowUserController, //FollowUnfollowUsers
@@ -273,4 +306,5 @@ module.exports = {
     getMyProfileController,     // get all neceassay information with populate
     updateUserProfileController, // update profile
     getUserDetailsController, // get user details
+    searchUserController, // search user
 }

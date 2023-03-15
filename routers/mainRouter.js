@@ -12,4 +12,5 @@ router.use('/auth', authRouter);
 router.use('/posts', requireUser, postRouter);
 router.use('/user', requireUser, userRouter);
 
+
 module.exports = router;

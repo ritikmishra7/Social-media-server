@@ -12,7 +12,20 @@ const mapPostOutput = (post, userId) => {
         },
         likesCount: post.likes.length,
         isLiked: post.likes.includes(userId),
-        // timeAgo: ta.ago(post.createdAt)
+        commentsCount: post.comment.length,
+        comments: post.comment.map(comment => {
+            return {
+                _id: comment._id,
+                caption: comment.caption,
+                commentOwner: {
+                    _id: comment.commentOwner._id,
+                    name: comment.commentOwner.name,
+                    username: comment.commentOwner.username,
+                    avatar: comment.commentOwner.avatar
+                },
+                timeAgo: ago(comment._id.getTimestamp()),
+            }
+        }),
         timeAgo: ago(post.createdAt)
     }
 }

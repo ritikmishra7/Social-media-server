@@ -39,7 +39,7 @@ const createPostController = async (req, res) => {
 
         user.posts.push(post._id);
         await user.save();
-        const newPost = await Posts.findById(post._id).populate('owner');
+        const newPost = await Posts.findById(post._id).populate('owner').populate({ path: 'comment.commentOwner' });
         const mappedPost = mapPostOutput(newPost, req._id);
         return res.send(success(201, { post: mappedPost }));
     } catch (e) {
@@ -51,7 +51,7 @@ const likeAndUnlikePost = async (req, res) => {
     try {
         const { postId } = req.body;
         const currUserId = req._id;
-        const post = await Posts.findById(postId).populate('owner');
+        const post = await Posts.findById(postId).populate('owner').populate({ path: 'comment.commentOwner' });
         if (!post) {
             return res.send(error(404, "Post not found"));
         }
@@ -80,32 +80,14 @@ const commentAndUncommentPost = async (req, res) => {
             return res.send(error(404, "Post not found"));
         }
 
-        // const result =   await Posts.aggregate([{$unwind: "$comment"}, {$match:{"comment.commentOwner" : currUserId}}] )
-        // console.log("This is result",result);
+        const comment = {
+            caption,
+            commentOwner: currUserId
+        }
 
-        const result = findComment(post.comment, currUserId);
-
-        return res.send(success(404, result));
-
-        // if(post.comment.find( o => o.commentOwner === currUserId))
-        // {
-        //     const index = post.comment.findIndex( o => o.commentOwner === currUserId);
-
-        //     post.likes.splice(index,1);
-        //     await post.save();
-
-        //     return res.send(success(200, 'Post Uncommented'));
-        // }
-        // else
-        // {
-        //     post.comment.push({
-        //         caption,
-        //         commentOwner: currUserId
-        //     });
-        //     await post.save();
-
-        //     return res.send(success(200,{caption}));
-        // }
+        post.comment.push(comment);
+        await post.save();
+        return res.send(success(200, { post }));
     } catch (e) {
         console.log(e);
         return res.send(error(500, e.message));
@@ -166,7 +148,7 @@ const getPostController = async (req, res) => {
         const { postId } = req.body;
         if (!postId)
             return res.send(error(400, "Post Id is required"));
-        const post = await Posts.findById(postId).populate({ path: 'owner' });
+        const post = await Posts.findById(postId).populate({ path: 'owner' }).populate({ path: 'comment.commentOwner' });
         const postChanged = mapPostOutput(post, req._id);
         return res.send(success(200, { postChanged }));
     } catch (e) {
