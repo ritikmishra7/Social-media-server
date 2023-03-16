@@ -119,7 +119,7 @@ const logoutController = async (req, res) => {
 
 //This api will refresh or generate a new access token if refresh token is still valid
 const refreshAccessToken = async (req, res) => {
-
+    console.log("refreshAccessToken called");
     const cookies = req.cookies;
     if (!cookies.jwt) {
         return res.send(error(401, 'Refresh Token is required'));
@@ -131,9 +131,7 @@ const refreshAccessToken = async (req, res) => {
         const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_PRIVATE_KEY);
 
         const data = {
-            '_id': decoded._id,
-            'email': decoded.email,
-            'username': decoded.username
+            _id: decoded._id,
         };
         const accessToken = generateAccessTokens(data);
         return res.send(success(201, { accessToken }));
@@ -148,7 +146,7 @@ const refreshAccessToken = async (req, res) => {
 //Internal Functions
 function generateAccessTokens(data) {
     try {
-        const accessToken = jwt.sign({ '_id': data._id, 'email': data.email, 'username': data.username }, process.env.ACCESS_TOKEN_PRIVATE_KEY, {
+        const accessToken = jwt.sign({ _id: data._id }, process.env.ACCESS_TOKEN_PRIVATE_KEY, {
             expiresIn: '1d'
         });
         return accessToken;
@@ -159,8 +157,8 @@ function generateAccessTokens(data) {
 
 function generateRefreshTokens(data) {
     try {
-        const accessToken = jwt.sign({ '_id': data._id, 'email': data.email, 'username': data.username }, process.env.REFRESH_TOKEN_PRIVATE_KEY, {
-            expiresIn: '1y'
+        const accessToken = jwt.sign({ _id: data._id }, process.env.REFRESH_TOKEN_PRIVATE_KEY, {
+            expiresIn: '30d'
         });
         return accessToken;
     } catch (e) {

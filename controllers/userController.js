@@ -117,7 +117,6 @@ const deleteMyProfileController = async (req, res) => {
         })
 
         //delete this user from following of every user
-        console.log(currUser);
         currUser?.followers?.forEach(async (followerId) => {
             const follower = await User.findById(followerId);
             const index = follower.followings.indexOf(currUserId);
