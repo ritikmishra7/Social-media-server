@@ -87,7 +87,10 @@ const commentAndUncommentPost = async (req, res) => {
 
         post.comment.push(comment);
         await post.save();
-        return res.send(success(200, { post }));
+        const updatedUser = await Posts.findById(postId).populate('owner').populate({ path: 'comment.commentOwner' });
+        const mappedPost = mapPostOutput(updatedUser, req._id);
+
+        return res.send(success(200, { post: mappedPost }));
     } catch (e) {
         console.log(e);
         return res.send(error(500, e.message));

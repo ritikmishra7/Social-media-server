@@ -3,7 +3,7 @@ const userController = require('../controllers/userController');
 
 
 router.post('/follow', userController.followUnfollowUserController);
-router.get('/getFeedData', userController.getPostsOfFollowingController);
+router.get('/getFeedData', userController.getFeedData);
 router.get('/getMyPosts', userController.getMypostsController);
 router.get('/getUserPosts', userController.getUserPostController);
 router.delete('/deleteMyProfile', userController.deleteMyProfileController);

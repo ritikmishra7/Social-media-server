@@ -54,7 +54,7 @@ const followUnfollowUserController = async (req, res) => {
 }
 
 
-const getPostsOfFollowingController = async (req, res) => {
+const getFeedData = async (req, res) => {
     try {
         const currUserId = req._id;
         const currUser = await User.findById(currUserId);
@@ -171,11 +171,15 @@ const getMyProfileController = async (req, res) => {
             {
                 path: 'posts',
                 populate: {
-                    path: 'comment.commentOwner',
-                    path: 'owner',
+                    path: 'comment.commentOwner'
                 },
             }
-        );
+        ).populate({
+            path: 'posts',
+            populate: {
+                path: 'owner',
+            }
+        });
         const fullPosts = user.posts;
         const posts = fullPosts.map((post) => mapPostOutput(post, req._id)).reverse();
         return res.send(success(200, { ...user._doc, posts }));
@@ -299,7 +303,7 @@ const searchUserController = async (req, res) => {
 
 module.exports = {
     followUnfollowUserController, //FollowUnfollowUsers
-    getPostsOfFollowingController, //getPostsOfFollowings
+    getFeedData, //getFeedData
     getMypostsController, //getMyposts
     getUserPostController,  //getUserPosts
     deleteMyProfileController,  //deleteMyProfile
