@@ -38,7 +38,7 @@ app.use(cors({
 
 app.use('/', mainRouter);
 
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 5000;
 
 
 dbConnect();
